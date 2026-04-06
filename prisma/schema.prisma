@@ -1,6 +1,5 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -9,8 +8,8 @@ datasource db {
 }
 
 model User {
-  id    String  @id @default(auto()) @map("_id") @db.ObjectId
-  email String  @unique // Bloquear usuários com emails iguais
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  email String @unique // Bloquear usuários com emails iguais
   name  String
   age   String
 }
