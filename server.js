@@ -64,12 +64,21 @@ app.put('/usuarios/:id', async (req, res) => {
 })
 
 app.delete('/usuarios/:id', async (req, res) => {
-
-    await prisma.user.delete({
-        where: {
-            id: req.params.id
-        }
-    })
-    res.status(200).json({ message: " Usuário deletado com Sucesso!" })
+    try {
+        await prisma.user.delete({
+            where: {
+                id: req.params.id
+            }
+        })
+        res.status(200).json({ message: "Usuário deletado com Sucesso!" })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: error.message })
+    }
 })
+
 app.listen(3000)
+
+// req.body → dados enviados no corpo da requisição (JSON), usado no POST e PUT
+// req.params → variável dentro da rota (/usuarios/:id), usado pra identificar um recurso específico
+// req.query → parâmetros opcionais na URL (?name=João), usado pra filtros no GET
