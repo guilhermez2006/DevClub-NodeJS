@@ -9,8 +9,24 @@ datasource db {
 
 model User {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
-  email    String @unique // Bloquear usuários com emails iguais
+  email    String @unique
   name     String
-  age      String
   password String
+  // Um usuário pode ter vários jogos na lista dele
+  games    Game[] 
+}
+
+model Game {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  platform  String   // Ex: PC, PS5, Switch, Emulador
+  status    String   // Ex: "Backlog", "Jogando", "Zerado", "Abandonado"
+  genre     String?  // O "?" significa que não é obrigatório
+  rating    Int?     // Nota de 0 a 10
+  
+  // Aqui é onde a mágica acontece: ligando o jogo ao usuário
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  
+  createdAt DateTime @default(now())
 }

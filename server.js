@@ -1,5 +1,6 @@
 import express from "express"
-import usuariosRoutes from "./routes/usuariosRoutes.js"
+import 'dotenv/config' // Lê o arquivo .env
+import usuariosRoutes from "./routes/gamesRoutes.js"
 
 const app = express()
 app.use(express.json())
