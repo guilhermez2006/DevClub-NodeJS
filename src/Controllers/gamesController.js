@@ -1,72 +1,76 @@
 import pkg from "@prisma/client";
 const { PrismaClient } = pkg;
+import pkg from "@prisma/client";
+const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
-import bcrypt from "bcryptjs"; // Importa o bcrypt aqui também!
 
+// 1. ADICIONAR JOGO
 export const adicionarJogo = async (req, res) => {
-    try {
-        const { email, name, age, password } = req.body;
+  try {
+    // Pegamos os campos de JOGO que vêm do corpo da requisição (JSON)
+    const { title, platform, status, genre, rating, userId } = req.body;
 
-        // 1. Criptografa a senha (10)
-        const salt = await bcrypt.genSalt(10);
-        const hashPassword = await bcrypt.hash(password, salt);
+    const jogo = await prisma.game.create({ // Use "game" (conforme seu schema)
+      data: {
+        title,
+        platform,
+        status,
+        genre,
+        rating,
+        userId // O ID do dono do jogo (essencial!)
+      }
+    });
 
-        // 2. Salva no banco o HASH, não a senha limpa
-        const newUser = await prisma.user.create({ 
-            data: { 
-                email, 
-                name, 
-                password: hashPassword // Aqui vai a senha protegida!
-            } 
-        });
-
-        res.status(201).json(newUser);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    res.status(201).json(jogo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
+// 2. LISTAR JOGOS
 export const listarJogos = async (req, res) => {
-    try {
-        // findMany busca todos os registros sem filtro, retorna um array
-        const users = await prisma.user.findMany();
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    // Se a função é listar JOGOS, use prisma.game, não prisma.user!
+    const jogos = await prisma.game.findMany(); 
+    res.status(200).json(jogos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
+// 3. BUSCAR POR ID
 export const buscarJogoId = async (req, res) => {
-    try {
-        const users = await prisma.user.findUnique({
-            where: { id: req.params.id }
-        })
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    const jogo = await prisma.game.findUnique({
+      where: { id: req.params.id }, // O ID vem da URL
+    });
+    res.status(200).json(jogo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
-// Pendente verificar melhor a questão de Atualizar status do jogo também
+// 4. EDITAR JOGO
 export const editarJogo = async (req, res) => {
-    try {
-        const users = await prisma.user.update({
-            where: { id: req.params.id }, // qual registro alterar (id vem pela URL)
-            data: req.body, // o que alterar (dados vêm pelo body JSON)
-        });
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    const jogoEditado = await prisma.game.update({
+      where: { id: req.params.id }, // QUEM eu vou editar (ID da URL)
+      data: req.body,               // O QUE eu vou mudar (Body JSON)
+    });
+    res.status(200).json(jogoEditado);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
+// 5. DELETAR JOGO
 export const deletarJogo = async (req, res) => {
-    try {
-        const users = await prisma.user.delete({
-            where: { id: req.params.id }, // qual registro deletar (id vem pela URL)
-        });
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    await prisma.game.delete({
+      where: { id: req.params.id },
+    });
+    res.status(200).json({ message: "Jogo deletado com sucesso!" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
